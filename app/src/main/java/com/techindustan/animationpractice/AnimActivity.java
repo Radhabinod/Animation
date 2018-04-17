@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.animation.TimeInterpolator;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
@@ -11,17 +12,30 @@ import android.support.v4.widget.Space;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.appolica.flubber.Flubber;
+import com.appolica.flubber.animation.providers.FadeIn;
+import com.appolica.flubber.animation.providers.SlideUp;
+import com.appolica.flubber.interpolator.providers.bezier.EaseIn;
 import com.daimajia.easing.Glider;
 import com.daimajia.easing.Skill;
 import com.techindustan.animationpractice.anim.FadeInUP;
+import com.techindustan.animationpractice.anim.SlideUpCus;
+import com.techindustan.animationpractice.anim.SpringCustom;
 import com.techindustan.animationpractice.anim.SqueezeUpXY;
 import com.techindustan.animationpractice.anim.SqueezeupCustom;
+import com.techindustan.animationpractice.anim.TranslateY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,116 +82,118 @@ public class AnimActivity extends AppCompatActivity {
         setContentView(R.layout.activity_anim);
         ButterKnife.bind(this);
         getSupportActionBar().hide();
+        //tuesday2(bubble2);
 
-      /*  AnimatorSet animatorSet = new AnimatorSet();
-
-
-        final AnimationSet as = new AnimationSet(true);
-        as.setFillEnabled(true);
-        as.setInterpolator(new BounceInterpolator());
-
-        TranslateAnimation ta = new TranslateAnimation(0, 0, 20, 0);
-        ta.setDuration(2000);
-        as.addAnimation(ta);
-
-        ScaleAnimation scaleAnimation = new ScaleAnimation(0f, 0f, 1.5f, 1f);
-        scaleAnimation.setDuration(1000);
-        as.setStartOffset(1000);
-        as.addAnimation(scaleAnimation);
-        TranslateAnimation ta2 = new TranslateAnimation(0, 0, 15, 0);
-        ta2.setDuration(2000);
-        ta2.setStartOffset(2000); // allowing 2000 milliseconds for ta to finish
-        as.addAnimation(ta2);
-
-        //bubble2.setAnimation(as);
-        as.setRepeatMode(Animation.INFINITE);
-        //bubble2.startAnimation(as);*/
-
-        /*final Animation a = AnimationUtils.loadAnimation(this, R.anim.test);
-        a.setRepeatMode(Animation.INFINITE);
-        bubble2.startAnimation(a);*/
-       /* ObjectAnimator transY = ObjectAnimator.ofFloat(bubble2, "translationY", 20, 0);
-        //transY.setDuration(100);
-        ObjectAnimator scaleUpBubble2 = ObjectAnimator.ofPropertyValuesHolder(bubble2,
-                PropertyValuesHolder.ofFloat("scaleX", 1f),
-                PropertyValuesHolder.ofFloat("scaleY", 1.15f));
-        scaleUpBubble2.setDuration(100);
-        ObjectAnimator scaleDown = ObjectAnimator.ofPropertyValuesHolder(bubble2,
-                PropertyValuesHolder.ofFloat("scaleX", .7f),
-                PropertyValuesHolder.ofFloat("scaleY", .7f));
-        scaleDown.setDuration(200);
-
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(bubble2, "scaleX", 0.5f);
-        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(bubble2, "scaleY", 1.15f);
+        animateBubble2();
+    }
 
 
-        ObjectAnimator scaleToNormal = ObjectAnimator.ofPropertyValuesHolder(bubble2,
-                PropertyValuesHolder.ofFloat("scaleX", 1f),
-                PropertyValuesHolder.ofFloat("scaleY", 1f));
-        scaleToNormal.setDuration(100);
+    void animateBubbleDark() {
 
-        final AnimatorSet set = new AnimatorSet();
-        set.playTogether(scaleUpBubble2);
+        bubbleDark.setPivotX(60);
+        bubbleDark.setPivotY(100);
+        Log.e("measureHeight", bubbleDark.getY() + "");
+        final Animator fadeIN = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).duration(300).createFor(bubbleDark);
 
-        //set.playTogether(transY, scaleUpY);
-        final AnimatorSet setSmall = new AnimatorSet();
+        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(bubbleDark, "scaleY", 0f, 1f);
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(bubbleDark, "scaleX", 0f, 0.85f);
 
-        set.playTogether(
-                Glider.glide(Skill.ElasticEaseOut, 400, transY), scaleToNormal
-        );
+        final Animator flubbeEase = Flubber.with().animation(new SlideUpCus()).interpolator(new EaseIn()).duration(500).createFor(bubbleDark);
+        final Animator flubbeSpring = Flubber.with().animation(new TranslateY()).interpolator(Flubber.Curve.SPRING).duration(1000).createFor(bubbleDark);
+        flubbeSpring.setStartDelay(500);
 
-        setSmall.playSequentially(set, scaleToNormal);
+        final AnimatorSet setScale = new AnimatorSet();
+        setScale.playTogether(scaleUpX, scaleUpY, flubbeEase, fadeIN);
 
+        flubbeSpring.start();
+        //setScale.setInterpolator(new BounceInterpolator());
+        setScale.setDuration(500);
 
-        final AnimatorSet s = new AnimatorSet();
-        s.playTogether(Glider.glide(Skill.BounceEaseInOut, 1000, scaleUpBubble2), transY);
-
-
-        animate.setOnClickListener(new View.OnClickListener() {
+        setScale.addListener(new Animator.AnimatorListener() {
             @Override
-            public void onClick(View v) {
-                //bubble2.startAnimation(a);
-                //setSmall.start();
-                //shinkGrow(animate);
-                //s.start();
-                anim();
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                animateBubbleDarkEnd();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
             }
         });
 
-
-        set.setDuration(600);
-        set.start();
-*/
-        //anim();
-
-        flubberScaleSpring(bubble2);
-        //tuesday();
+        setScale.start();
 
     }
 
-    void anim() {
-        Log.e("pivotX", bubble2.getPivotX() + "");
-        bubble2.setPivotX(bubble2.getPivotX() / 4);
-        //bubble2.setPivotY(0);
-        ObjectAnimator fadeInBubble = ObjectAnimator.ofFloat(bubble2, "alpha", 1f);
-        ObjectAnimator transYBubble2 = ObjectAnimator.ofFloat(bubble2, "translationY", 10, 0);
-        ObjectAnimator scaleUpYBubble2 = ObjectAnimator.ofFloat(bubble2, "scaleY", 1.2f);
-        ObjectAnimator scaleDownXBubble2 = ObjectAnimator.ofFloat(bubble2, "scaleX", 0.95f);
-        ObjectAnimator scaleDownYBubble2 = ObjectAnimator.ofFloat(bubble2, "scaleY", 0.8f);
-        ObjectAnimator scaleNormalYBubble2 = ObjectAnimator.ofFloat(bubble2, "scaleY", 1f);
-        ObjectAnimator scaleNormalXBubble2 = ObjectAnimator.ofFloat(bubble2, "scaleX", 1f);
+    void animateBubble2() {
 
-        AnimatorSet set1 = new AnimatorSet();
-        set1.playTogether(transYBubble2, scaleUpYBubble2, fadeInBubble);
-        AnimatorSet set2 = new AnimatorSet();
-        set2.playTogether(scaleDownXBubble2, scaleDownYBubble2);
-        AnimatorSet set3 = new AnimatorSet();
-        set3.playTogether(scaleNormalXBubble2, scaleNormalYBubble2);
+        bubble2.setPivotX(60);
+        bubble2.setPivotY(100);
+        Log.e("measureHeight", bubble2.getY() + "");
+        final Animator fadeIN = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).duration(300).createFor(bubble2);
 
+        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(bubble2, "scaleY", 0f, 1f);
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(bubble2, "scaleX", 0f, 0.85f);
 
-        final AnimatorSet setFinal = new AnimatorSet();
-        setFinal.playSequentially(set1, set2, set3);
-        setFinal.addListener(new Animator.AnimatorListener() {
+        final Animator flubbeEase = Flubber.with().animation(new SlideUpCus()).interpolator(new EaseIn()).duration(500).createFor(bubble2);
+        final Animator flubbeSpring = Flubber.with().animation(new TranslateY()).interpolator(Flubber.Curve.SPRING).duration(1000).createFor(bubble2);
+        flubbeSpring.setStartDelay(500);
+
+        final AnimatorSet setScale = new AnimatorSet();
+        setScale.playTogether(scaleUpX, scaleUpY, flubbeEase, fadeIN);
+
+        flubbeSpring.start();
+        //setScale.setInterpolator(new BounceInterpolator());
+        setScale.setDuration(500);
+
+        setScale.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                animateBubble2End();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        setScale.start();
+
+    }
+
+    void animateBubbleDarkEnd() {
+        Log.e("measureHeight", bubbleDark.getY() + "");
+        int dur = 200;
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(bubbleDark, "scaleX", 0.85f, 1f);
+        scaleUpX.setDuration(dur);
+        //final Animator flubbeEase = Flubber.with().animation(Flubber.AnimationPreset.).interpolator(Flubber.Curve.BZR_EASE_IN_OUT_CUBIC).duration(500).createFor(bubbleDark);
+        final AnimatorSet setScale = new AnimatorSet();
+        setScale.playTogether(scaleUpX);
+        setScale.setInterpolator(new AccelerateDecelerateInterpolator());
+        setScale.setDuration(dur);
+
+        setScale.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -188,11 +204,9 @@ public class AnimActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        //setFinal.start();
-                        /*animDark();*/
-                        animCircle1();
+                        animateCirclesA();
                     }
-                }, 300);
+                }, 500);
             }
 
             @Override
@@ -205,41 +219,23 @@ public class AnimActivity extends AppCompatActivity {
 
             }
         });
-        setFinal.setDuration(150);
-        setFinal.start();
+
+        setScale.start();
+
     }
 
-    void animDark() {
-        Log.e("Dark pivotX", bubbleDark.getPivotX() + " real" + (bubbleDark.getX() - 40) + " GX" + bubbleDark.getX());
-        bubbleDark.setPivotX(bubbleDark.getWidth() / 4);
+    void animateBubble2End() {
+        Log.e("measureHeight", bubble2.getY() + "");
+        int dur = 200;
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(bubble2, "scaleX", 0.85f, 1f);
+        scaleUpX.setDuration(dur);
+        //final Animator flubbeEase = Flubber.with().animation(Flubber.AnimationPreset.).interpolator(Flubber.Curve.BZR_EASE_IN_OUT_CUBIC).duration(500).createFor(bubbleDark);
+        final AnimatorSet setScale = new AnimatorSet();
+        setScale.playTogether(scaleUpX);
+        setScale.setInterpolator(new AccelerateDecelerateInterpolator());
+        setScale.setDuration(dur);
 
-
-        //bubble2.setPivotY(0);
-        ObjectAnimator transYBubble2 = ObjectAnimator.ofFloat(bubbleDark, "translationY", 20, 0);
-        ObjectAnimator scaleUpYBubble2 = ObjectAnimator.ofFloat(bubbleDark, "scaleY", 1.2f);
-        ObjectAnimator scaleDownXBubble2 = ObjectAnimator.ofFloat(bubbleDark, "scaleX", 0.7f);
-        ObjectAnimator scaleDownYBubble2 = ObjectAnimator.ofFloat(bubbleDark, "scaleY", 0.8f);
-        ObjectAnimator scaleNormalYBubble2 = ObjectAnimator.ofFloat(bubbleDark, "scaleY", 1f);
-        ObjectAnimator scaleNormalXBubble2 = ObjectAnimator.ofFloat(bubbleDark, "scaleX", 1f);
-        ObjectAnimator fadeOut = ObjectAnimator.ofFloat(bubbleDark, "alpha", 0f);
-        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(bubbleDark, "alpha", 1f);
-        ObjectAnimator fadeOutBubble = ObjectAnimator.ofFloat(bubble2, "alpha", 0f);
-        ObjectAnimator fadeInBubble = ObjectAnimator.ofFloat(bubble2, "alpha", 1f);
-
-        AnimatorSet set1 = new AnimatorSet();
-        set1.playTogether(transYBubble2, scaleUpYBubble2, fadeIn);
-        AnimatorSet set2 = new AnimatorSet();
-        set2.playTogether(scaleDownXBubble2, scaleDownYBubble2);
-        AnimatorSet set3 = new AnimatorSet();
-        set3.playTogether(scaleNormalXBubble2, scaleNormalYBubble2);
-
-        /*AnimatorSet set4 = new AnimatorSet();
-        set4.playTogether(fadeOut, fadeOutBubble);*/
-
-
-        final AnimatorSet setFinal = new AnimatorSet();
-        setFinal.playSequentially(set1, set2, set3);
-        setFinal.addListener(new Animator.AnimatorListener() {
+        setScale.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -250,10 +246,9 @@ public class AnimActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        //anim();
-                        animCircle2();
+                        animateCirclesB();
                     }
-                }, 300);
+                }, 500);
             }
 
             @Override
@@ -266,43 +261,40 @@ public class AnimActivity extends AppCompatActivity {
 
             }
         });
-        setFinal.setDuration(150);
-        setFinal.start();
+
+        setScale.start();
+
     }
 
-    void animCircle2() {
-        int fOutTime = 200, cTime = 300;
-        ObjectAnimator om1 = ObjectAnimator.ofFloat(circleA1, "alpha", 1f);
-        om1.setDuration(cTime);
-        ObjectAnimator om2 = ObjectAnimator.ofFloat(circleA2, "alpha", 1f);
-        om2.setDuration(cTime);
-        ObjectAnimator om3 = ObjectAnimator.ofFloat(circleA3, "alpha", 1f);
-        om3.setDuration(cTime);
-        ObjectAnimator om4 = ObjectAnimator.ofFloat(circleA4, "alpha", 1f);
-        om4.setDuration(cTime);
+    void animateCirclesB() {
+        int time = 250;
+        final Animator fadeInB1 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleB1);
+        final Animator fadeInB2 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleB2);
+        final Animator fadeInB3 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleB3);
+        final Animator fadeInB4 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleB4);
 
-        ObjectAnimator om1Out = ObjectAnimator.ofFloat(circleA1, "alpha", .5f);
-        om1Out.setDuration(cTime);
-        ObjectAnimator om2Out = ObjectAnimator.ofFloat(circleA2, "alpha", .5f);
-        om2Out.setDuration(cTime);
+        fadeInB1.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
 
-        AnimatorSet setCircle1On = new AnimatorSet();
-        final List<Animator> circle1On = new ArrayList<>();
-        circle1On.add(om1);
-        circle1On.add(om2);
-        AnimatorSet a1 = new AnimatorSet();
-        a1.playTogether(om3, om1Out);
-        circle1On.add(a1);
-        AnimatorSet a2 = new AnimatorSet();
-        a2.playTogether(om4, om2Out);
-        circle1On.add(a2);
-        AnimatorSet a3 = new AnimatorSet();
-        a3.playSequentially(om2, om1);
-        circle1On.add(a3);
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                circleB1.setAlpha(0.75f);
+                fadeInB2.start();
+            }
 
-        setCircle1On.playSequentially(circle1On);
+            @Override
+            public void onAnimationCancel(Animator animation) {
 
-        setCircle1On.addListener(new Animator.AnimatorListener() {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        fadeInB2.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -310,13 +302,9 @@ public class AnimActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        fadeoutAll();
-                    }
-                }, 200);
+                circleB2.setAlpha(0.75f);
+                circleB1.setAlpha(0.5f);
+                fadeInB3.start();
             }
 
             @Override
@@ -330,42 +318,7 @@ public class AnimActivity extends AppCompatActivity {
             }
         });
 
-        setCircle1On.start();
-
-
-    }
-
-    void animCircle1() {
-        //Toast.makeText(this, "reach", Toast.LENGTH_SHORT).show();
-        int fOutTime = 200, cTime = 300;
-        ObjectAnimator omB1 = ObjectAnimator.ofFloat(circleB1, "alpha", 1f);
-        omB1.setDuration(cTime);
-        ObjectAnimator omB2 = ObjectAnimator.ofFloat(circleB2, "alpha", 1f);
-        omB2.setDuration(cTime);
-        ObjectAnimator omB3 = ObjectAnimator.ofFloat(circleB3, "alpha", 1f);
-        omB3.setDuration(cTime);
-        ObjectAnimator omB4 = ObjectAnimator.ofFloat(circleB4, "alpha", 1f);
-        omB4.setDuration(cTime);
-
-        ObjectAnimator omB1Out = ObjectAnimator.ofFloat(circleB1, "alpha", .6f);
-        omB1Out.setDuration(cTime);
-        ObjectAnimator omB2Out = ObjectAnimator.ofFloat(circleB2, "alpha", .6f);
-        omB2Out.setDuration(cTime);
-
-        final List<Animator> circle2On = new ArrayList<>();
-        circle2On.add(omB1);
-        circle2On.add(omB2);
-        AnimatorSet an = new AnimatorSet();
-        an.playTogether(omB3, omB1Out);
-        circle2On.add(an);
-        AnimatorSet an2 = new AnimatorSet();
-        an2.playTogether(omB4, omB2Out);
-        circle2On.add(an2);
-        AnimatorSet anfinal = new AnimatorSet();
-        anfinal.playSequentially(circle2On);
-
-
-        anfinal.addListener(new Animator.AnimatorListener() {
+        fadeInB3.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -373,7 +326,10 @@ public class AnimActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                animDark();
+                circleB1.setAlpha(0.25f);
+                circleB2.setAlpha(0.5f);
+                circleB3.setAlpha(0.75f);
+                fadeInB4.start();
             }
 
             @Override
@@ -386,56 +342,8 @@ public class AnimActivity extends AppCompatActivity {
 
             }
         });
-        anfinal.start();
-    }
 
-    void fadeoutAll() {
-        int fOutTime = 100;
-        ObjectAnimator om1F = ObjectAnimator.ofFloat(circleA1, "alpha", 0f);
-        om1F.setDuration(fOutTime);
-        ObjectAnimator om2F = ObjectAnimator.ofFloat(circleA2, "alpha", 0f);
-        om2F.setDuration(fOutTime);
-        ObjectAnimator om3F = ObjectAnimator.ofFloat(circleA3, "alpha", 0f);
-        om3F.setDuration(fOutTime);
-        ObjectAnimator om4F = ObjectAnimator.ofFloat(circleA4, "alpha", 0f);
-        om4F.setDuration(fOutTime);
-
-        ObjectAnimator omB1F = ObjectAnimator.ofFloat(circleB1, "alpha", 0f);
-        omB1F.setDuration(fOutTime);
-        ObjectAnimator omB2F = ObjectAnimator.ofFloat(circleB2, "alpha", 0f);
-        omB2F.setDuration(fOutTime);
-        ObjectAnimator omB3F = ObjectAnimator.ofFloat(circleB3, "alpha", 0f);
-        omB3F.setDuration(fOutTime);
-        ObjectAnimator omB4F = ObjectAnimator.ofFloat(circleB4, "alpha", 0f);
-        omB4F.setDuration(fOutTime);
-
-        final ObjectAnimator fade2 = ObjectAnimator.ofFloat(bubbleDark, "alpha", 0f);
-        fade2.setDuration(fOutTime);
-        final ObjectAnimator fade1 = ObjectAnimator.ofFloat(bubble2, "alpha", 0f);
-        fade1.setDuration(fOutTime);
-
-        ObjectAnimator consFadeOut = ObjectAnimator.ofFloat(consLay, "alpha", 0f);
-        consFadeOut.setDuration(150);
-        ObjectAnimator consFadeIn = ObjectAnimator.ofFloat(consLay, "alpha", 1f);
-        consFadeIn.setDuration(150);
-
-        final List<Animator> fadeoff = new ArrayList<>();
-        fadeoff.add(om1F);
-        fadeoff.add(om2F);
-        fadeoff.add(om3F);
-        fadeoff.add(om4F);
-        fadeoff.add(omB1F);
-        fadeoff.add(omB2F);
-        fadeoff.add(omB3F);
-        fadeoff.add(omB4F);
-        fadeoff.add(fade1);
-        fadeoff.add(fade2);
-        AnimatorSet set1 = new AnimatorSet();
-        set1.playTogether(fadeoff);
-
-        AnimatorSet set = new AnimatorSet();
-        set.playSequentially(consFadeOut, set1, consFadeIn);
-        set.addListener(new Animator.AnimatorListener() {
+        fadeInB4.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -443,14 +351,7 @@ public class AnimActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        anim();
-                    }
-                }, 600);
-
+                animateBubbleDark();
             }
 
             @Override
@@ -464,48 +365,46 @@ public class AnimActivity extends AppCompatActivity {
             }
         });
 
-        set.start();
+        fadeInB1.start();
+
 
     }
 
-    void flubberScaleSpring(View iv) {
-        int dur = 500;
-        //SQUEEZE_UP
-        int timeCom = 150;
-        iv.setPivotX(iv.getWidth() / 4 - 30);
+    void animateCirclesA() {
 
-        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(iv, "scaleY", 0f, 1.5f);
-        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(iv, "scaleX", 0f, 1.1f);
+        int time = 250;
+        final Animator fadeInA1 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleA1);
+        final Animator fadeInA2 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleA2);
+        final Animator fadeInA3 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleA3);
+        final Animator fadeInA4 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleA4);
 
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(iv, "scaleX", 0.80f);
+        final Animator fadeInA5 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleA3);
+        final Animator fadeInA6 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleA2);
+        final Animator fadeInA7 = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.BZR_EASE_IN_OUT).duration(time).createFor(circleA1);
 
-        ObjectAnimator scaleNormalY = ObjectAnimator.ofFloat(iv, "scaleY", 1f);
-        ObjectAnimator scaleNormalX = ObjectAnimator.ofFloat(iv, "scaleX", 1f);
-        Animator fadeInLay = ObjectAnimator.ofFloat(consLay, "alpha", 0f, 1f);
-        fadeInLay.setDuration(50);
-        Animator fadein = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).duration(100).createFor(iv);
-        Animator fadeOut = ObjectAnimator.ofFloat(iv, "alpha", 1f, 0f);
-        fadeOut.setStartDelay(dur + 700);
+        fadeInA1.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
 
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                circleB2.setAlpha(1f);
+                circleA1.setAlpha(0.75f);
+                fadeInA2.start();
+            }
 
-        Animator a1 = Flubber.with().animation(new SqueezeupCustom()).interpolator(Flubber.Curve.SPRING).duration(dur).createFor(iv);
-        AnimatorSet s0 = new AnimatorSet();
-        s0.playTogether(scaleUpY, scaleUpX);
-        s0.setDuration(timeCom);
+            @Override
+            public void onAnimationCancel(Animator animation) {
 
-        AnimatorSet sShrink = new AnimatorSet();
-        sShrink.playTogether(scaleDownX, scaleNormalY);
-        sShrink.setStartDelay(timeCom);
-        sShrink.setDuration(timeCom);
+            }
 
-        AnimatorSet s = new AnimatorSet();
-        s.setStartDelay(2 * timeCom);
-        s.playTogether(scaleNormalX);
-        s.setDuration(timeCom / 4);
+            @Override
+            public void onAnimationRepeat(Animator animation) {
 
-        AnimatorSet sFinal = new AnimatorSet();
-        sFinal.playTogether(a1, sShrink, s0, s, fadein, fadeInLay);
-        sFinal.addListener(new Animator.AnimatorListener() {
+            }
+        });
+        fadeInA2.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -513,12 +412,10 @@ public class AnimActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        flubberScaleSpringDark(bubbleDark);
-                    }
-                }, 300);
+                circleB1.setAlpha(1f);
+                circleA2.setAlpha(0.75f);
+                circleA1.setAlpha(0.5f);
+                fadeInA3.start();
             }
 
             @Override
@@ -531,51 +428,99 @@ public class AnimActivity extends AppCompatActivity {
 
             }
         });
-        sFinal.start();
 
+        fadeInA3.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
 
-    }
+            }
 
-    void flubberScaleSpringDark(View iv) {
-        int dur = 500;
-        //SQUEEZE_UP
-        int timeCom = 150;
-        iv.setPivotX(iv.getWidth() / 4 - 30);
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                circleA1.setAlpha(0.25f);
+                circleA2.setAlpha(0.5f);
+                circleA3.setAlpha(0.75f);
+                fadeInA4.start();
+            }
 
-        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(iv, "scaleY", 0f, 1.9f);
-        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(iv, "scaleX", 0f, 1.1f);
+            @Override
+            public void onAnimationCancel(Animator animation) {
 
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(iv, "scaleX", 0.80f);
+            }
 
-        ObjectAnimator scaleNormalY = ObjectAnimator.ofFloat(iv, "scaleY", 1f);
-        ObjectAnimator scaleNormalX = ObjectAnimator.ofFloat(iv, "scaleX", 1f);
+            @Override
+            public void onAnimationRepeat(Animator animation) {
 
-        Animator fadein = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).duration(50).createFor(iv);
-        Animator fadeOut = ObjectAnimator.ofFloat(iv, "alpha", 1f, 0f);
-        Animator fadeOutDark = ObjectAnimator.ofFloat(bubble2, "alpha", 1f, 0f);
-        Animator fadeOutLay = ObjectAnimator.ofFloat(consLay, "alpha", 1f, 0f);
-        fadeOut.setStartDelay(dur + 700);
-        fadeOutDark.setStartDelay(dur + 700);
-        fadeOutLay.setStartDelay(dur + 600);
+            }
+        });
 
-        Animator a1 = Flubber.with().animation(new SqueezeupCustom()).interpolator(Flubber.Curve.SPRING).duration(dur).createFor(iv);
-        AnimatorSet s0 = new AnimatorSet();
-        s0.playTogether(scaleUpY, scaleUpX);
-        s0.setDuration(timeCom);
+        fadeInA4.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
 
-        AnimatorSet sShrink = new AnimatorSet();
-        sShrink.playTogether(scaleDownX, scaleNormalY);
-        sShrink.setStartDelay(timeCom);
-        sShrink.setDuration(timeCom);
+            }
 
-        AnimatorSet s = new AnimatorSet();
-        s.setStartDelay(2 * timeCom);
-        s.playTogether(scaleNormalX);
-        s.setDuration(timeCom / 4);
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fadeInA5.start();
 
-        AnimatorSet sFinal = new AnimatorSet();
-        sFinal.playTogether(a1, sShrink, s0, s, fadein, fadeOutLay, fadeOut, fadeOutDark);
-        sFinal.addListener(new Animator.AnimatorListener() {
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+
+        fadeInA5.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fadeInA6.start();
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        fadeInA6.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                fadeInA7.start();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        fadeInA7.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -586,7 +531,17 @@ public class AnimActivity extends AppCompatActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        flubberScaleSpring(bubble2);
+                        circleB1.setAlpha(0f);
+                        circleB2.setAlpha(0f);
+                        circleB3.setAlpha(0f);
+                        circleB4.setAlpha(0f);
+                        circleA1.setAlpha(0f);
+                        circleA2.setAlpha(0f);
+                        circleA3.setAlpha(0f);
+                        circleA4.setAlpha(0f);
+                        bubbleDark.setAlpha(0f);
+                        bubble2.setAlpha(0f);
+                        animateBubble2();
                     }
                 }, 1000);
             }
@@ -601,87 +556,9 @@ public class AnimActivity extends AppCompatActivity {
 
             }
         });
-        sFinal.start();
+        fadeInA1.start();
 
 
     }
 
-    void tuesday(){
-        bubble2.setPivotX(bubble2.getWidth() / 4-40);
-        bubbleDark.setPivotX(bubble2.getWidth() / 4-40);
-        final Animator a1 = Flubber.with().animation(new FadeInUP()).interpolator(Flubber.Curve.SPRING).duration(1000).createFor(bubble2);
-        final Animator a1Fade = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.SPRING).duration(200).createFor(bubble2);
-        final Animator a1ScaleUP = ObjectAnimator.ofFloat(bubble2, "scaleY", 0f, 1.8f);
-        final Animator a1ScaleUPX = ObjectAnimator.ofFloat(bubble2, "scaleX", 0f, 1f);
-        final Animator a1ScaleUPX2 = ObjectAnimator.ofFloat(bubble2, "scaleX", .7f, 1f);
-        a1ScaleUP.setDuration(500);
-        a1ScaleUPX.setDuration(500);
-        a1ScaleUPX2.setDuration(500);
-        a1ScaleUPX2.setStartDelay(500);
-
-
-        final Animator a1ScaleNormal = ObjectAnimator.ofFloat(bubble2, "scaleY", 1f, 1f);
-        a1ScaleNormal.setStartDelay(500);
-        a1ScaleNormal.setDuration(300);
-
-        final AnimatorSet s=new AnimatorSet();
-        s.playTogether(a1,a1Fade,a1ScaleUP,a1ScaleNormal);
-        final Animator a2 = Flubber.with().animation(new FadeInUP()).interpolator(Flubber.Curve.SPRING).duration(1000).createFor(bubbleDark);
-
-        a2.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        s.start();
-                    }
-                }, 2000);
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        s.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        a2.start();
-                    }
-                }, 2000);
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        s.start();
-    }
 }
