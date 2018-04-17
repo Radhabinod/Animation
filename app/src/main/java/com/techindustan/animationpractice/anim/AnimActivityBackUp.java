@@ -1,9 +1,8 @@
-package com.techindustan.animationpractice;
+package com.techindustan.animationpractice.anim;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.constraint.ConstraintLayout;
@@ -14,14 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.appolica.flubber.Flubber;
-import com.daimajia.easing.Glider;
-import com.daimajia.easing.Skill;
-import com.techindustan.animationpractice.anim.FadeInUP;
-import com.techindustan.animationpractice.anim.SqueezeUpXY;
-import com.techindustan.animationpractice.anim.SqueezeupCustom;
+import com.techindustan.animationpractice.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +23,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class AnimActivity extends AppCompatActivity {
+public class AnimActivityBackUp extends AppCompatActivity {
 
     @BindView(R.id.bubble1)
     ImageView bubbleDark;
@@ -151,7 +145,6 @@ public class AnimActivity extends AppCompatActivity {
         //anim();
 
         flubberScaleSpring(bubble2);
-        //tuesday();
 
     }
 
@@ -604,84 +597,5 @@ public class AnimActivity extends AppCompatActivity {
         sFinal.start();
 
 
-    }
-
-    void tuesday(){
-        bubble2.setPivotX(bubble2.getWidth() / 4-40);
-        bubbleDark.setPivotX(bubble2.getWidth() / 4-40);
-        final Animator a1 = Flubber.with().animation(new FadeInUP()).interpolator(Flubber.Curve.SPRING).duration(1000).createFor(bubble2);
-        final Animator a1Fade = Flubber.with().animation(Flubber.AnimationPreset.FADE_IN).interpolator(Flubber.Curve.SPRING).duration(200).createFor(bubble2);
-        final Animator a1ScaleUP = ObjectAnimator.ofFloat(bubble2, "scaleY", 0f, 1.8f);
-        final Animator a1ScaleUPX = ObjectAnimator.ofFloat(bubble2, "scaleX", 0f, 1f);
-        final Animator a1ScaleUPX2 = ObjectAnimator.ofFloat(bubble2, "scaleX", .7f, 1f);
-        a1ScaleUP.setDuration(500);
-        a1ScaleUPX.setDuration(500);
-        a1ScaleUPX2.setDuration(500);
-        a1ScaleUPX2.setStartDelay(500);
-
-
-        final Animator a1ScaleNormal = ObjectAnimator.ofFloat(bubble2, "scaleY", 1f, 1f);
-        a1ScaleNormal.setStartDelay(500);
-        a1ScaleNormal.setDuration(300);
-
-        final AnimatorSet s=new AnimatorSet();
-        s.playTogether(a1,a1Fade,a1ScaleUP,a1ScaleNormal);
-        final Animator a2 = Flubber.with().animation(new FadeInUP()).interpolator(Flubber.Curve.SPRING).duration(1000).createFor(bubbleDark);
-
-        a2.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        s.start();
-                    }
-                }, 2000);
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        s.addListener(new Animator.AnimatorListener() {
-            @Override
-            public void onAnimationStart(Animator animation) {
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        a2.start();
-                    }
-                }, 2000);
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-
-            }
-        });
-        s.start();
     }
 }
